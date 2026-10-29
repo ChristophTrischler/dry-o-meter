@@ -3,7 +3,7 @@ use jsonwebtoken::{decode, Algorithm, DecodingKey, EncodingKey, Validation};
 use salvo::jwt_auth::{ConstDecoder, CookieFinder, HeaderFinder, QueryFinder};
 use salvo::prelude::*;
 use serde::{Deserialize, Serialize};
-use time::{Duration, OffsetDateTime};
+use chrono::{Duration, Utc};
 
 use crate::config::{self, JwtConfig};
 
@@ -26,17 +26,17 @@ pub fn auth_hoop(config: &JwtConfig) -> JwtAuth<JwtClaims, ConstDecoder> {
 }
 
 pub fn get_token(uid: impl Into<String>) -> Result<(String, i64)> {
-    let exp = OffsetDateTime::now_utc() + Duration::seconds(config::get().jwt.expiry);
+    let exp = Utc::now() + Duration::seconds(config::get().jwt.expiry);
     let claim = JwtClaims {
         uid: uid.into(),
-        exp: exp.unix_timestamp(),
+        exp: exp.timestamp(),
     };
     let token: String = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
         &claim,
         &EncodingKey::from_secret(config::get().jwt.secret.as_bytes()),
     )?;
-    Ok((token, exp.unix_timestamp()))
+    Ok((token, exp.timestamp()))
 }
 
 #[allow(dead_code)]

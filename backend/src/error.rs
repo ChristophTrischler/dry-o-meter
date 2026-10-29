@@ -9,6 +9,8 @@ pub enum AppError {
     Public(String),
     #[error("internal: `{0}`")]
     Internal(String),
+    #[error("not found: `{0}`")]
+    NotFound(String),
     #[error("salvo internal error: `{0}`")]
     Salvo(#[from] ::salvo::Error),
     #[error("http status error: `{0}`")]
@@ -37,6 +39,7 @@ impl Writer for AppError {
     async fn write(mut self, _req: &mut Request, _depot: &mut Depot, res: &mut Response) {
         let code = match &self {
             Self::HttpStatus(e) => e.code,
+            Self::NotFound(_) => StatusCode::NOT_FOUND,
             _ => StatusCode::INTERNAL_SERVER_ERROR,
         };
         res.status_code(code);
@@ -50,6 +53,7 @@ impl Writer for AppError {
                 tracing::error!(msg = msg, "internal error");
                 StatusError::internal_server_error()
             }
+            Self::NotFound(msg) => StatusError::not_found().brief(msg),
             Self::HttpStatus(e) => e,
             e => StatusError::internal_server_error()
                 .brief(format!("Unknown error happened: {e}"))

@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT time, controller_id, humidity, battery_voltage, rssi, is_alert\n            FROM humidity_readings\n            WHERE is_alert = TRUE\n            ORDER BY time DESC\n            LIMIT $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "time",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "controller_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "humidity",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 3,
+        "name": "battery_voltage",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "rssi",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_alert",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "d5abe123a2f8c166006f70a4ffddc3b56bb3e3e5f5e525352ea290acc4c9ccbf"
+}

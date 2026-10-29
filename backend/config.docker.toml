@@ -1,0 +1,12 @@
+listen_addr = "0.0.0.0:8008"
+
+[db]
+url = "postgres://postgres:root@db:5432/backend"
+
+[jwt]
+secret = "yoursecret"
+expiry = 3600
+
+[log]
+file_name = "app.log"
+rolling = "daily"

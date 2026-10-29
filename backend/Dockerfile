@@ -1,14 +1,24 @@
 # Use an official Rust runtime as a parent image
-FROM rust:latest as builder
+FROM rust:latest AS builder
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy the Cargo.toml and Cargo.lock files
+# Create a dummy project and build dependencies to cache them
 COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo "fn main() {}" > src/main.rs && cargo build --release && rm -rf src
 
-# Build the project in release mode
-RUN cargo build --release
+# Copy the actual source code, migrations, and offline metadata
+COPY src ./src
+COPY migrations ./migrations
+COPY .sqlx ./.sqlx
+COPY assets ./assets
+
+# Enforce offline build mode
+ENV SQLX_OFFLINE=true
+
+# Build the project in release mode (touch main.rs to force cargo to rebuild)
+RUN touch src/main.rs && cargo build --release
 
 # Use a lightweight image for the final stage
 FROM debian:stable-slim
@@ -25,16 +35,13 @@ WORKDIR /usr/src/app
 COPY --from=builder /usr/src/app/target/release/backend .
 
 # Copy the configuration files
-COPY config.toml rinja.toml ./
+COPY config.docker.toml ./
 
-# Copy the assets and views directories
-COPY assets views ./
-
-# Copy the certs directory
-COPY certs ./
+# Copy assets directory
+COPY assets ./assets
 
 # Expose the port the app runs on
-EXPOSE 8080
+EXPOSE 8008
 
 # Command to run the application
 CMD ["./backend"]

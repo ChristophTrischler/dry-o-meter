@@ -1,0 +1,57 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO humidity_readings (time, controller_id, humidity, battery_voltage, rssi, is_alert)\n            VALUES ($1, $2, $3, $4, $5, $6)\n            RETURNING time, controller_id, humidity, battery_voltage, rssi, is_alert\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "time",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 1,
+        "name": "controller_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "humidity",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 3,
+        "name": "battery_voltage",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "rssi",
+        "type_info": "Int2"
+      },
+      {
+        "ordinal": 5,
+        "name": "is_alert",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Timestamptz",
+        "Int4",
+        "Numeric",
+        "Numeric",
+        "Int2",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      false
+    ]
+  },
+  "hash": "73a10644a6d3ef3b5ca2284fdb6710dd94bec0d17b169b06a85391bf5e6db8bf"
+}

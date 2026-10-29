@@ -1,5 +1,4 @@
 use salvo::catcher::Catcher;
-use salvo::conn::rustls::{Keycert, RustlsConfig};
 use salvo::prelude::*;
 use salvo::server::ServerHandle;
 use serde::Serialize;
@@ -41,41 +40,17 @@ async fn main() {
     let service = Service::new(routers::root())
         .catcher(Catcher::default().hoop(hoops::error_404))
         .hoop(hoops::cors_hoop());
+    
     println!("🔄 listen on {}", &config.listen_addr);
     //Acme support, automatically get TLS certificate from Let's Encrypt. For example, see https://github.com/salvo-rs/salvo/blob/main/examples/acme-http01-quinn/src/main.rs
-    if let Some(tls) = &config.tls {
-        let listen_addr = &config.listen_addr;
-        println!(
-            "📖 Open API Page: https://{}/scalar",
-            listen_addr.replace("0.0.0.0", "127.0.0.1")
-        );
-        println!(
-            "🔑 Login Page: https://{}/login",
-            listen_addr.replace("0.0.0.0", "127.0.0.1")
-        );
-        let config = RustlsConfig::new(
-            Keycert::new()
-                .cert_from_path(&tls.cert).expect("failed to read cert file")
-                .key_from_path(&tls.key).expect("failed to read key file"),
-        );
-        let acceptor = TcpListener::new(listen_addr).rustls(config).bind().await;
-        let server = Server::new(acceptor);
-        tokio::spawn(shutdown_signal(server.handle()));
-        server.serve(service).await;
-    } else {
-        println!(
-            "📖 Open API Page: http://{}/scalar",
-            config.listen_addr.replace("0.0.0.0", "127.0.0.1")
-        );
-        println!(
-            "🔑 Login Page: http://{}/login",
-            config.listen_addr.replace("0.0.0.0", "127.0.0.1")
-        );
-        let acceptor = TcpListener::new(&config.listen_addr).bind().await;
-        let server = Server::new(acceptor);
-        tokio::spawn(shutdown_signal(server.handle()));
-        server.serve(service).await;
-    }
+    println!(
+        "📖 Open API Page: http://{}/api/scalar",
+        config.listen_addr.replace("0.0.0.0", "127.0.0.1")
+    );
+    let acceptor = TcpListener::new(&config.listen_addr).bind().await;
+    let server = Server::new(acceptor);
+    tokio::spawn(shutdown_signal(server.handle()));
+    server.serve(service).await;
 }
 
 async fn shutdown_signal(handle: ServerHandle) {
@@ -92,9 +67,6 @@ async fn shutdown_signal(handle: ServerHandle) {
             .recv()
             .await;
     };
-
-    #[cfg(not(unix))]
-    let terminate = std::future::pending::<()>();
 
     tokio::select! {
         _ = ctrl_c => info!("ctrl_c signal received"),

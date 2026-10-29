@@ -1,0 +1,5 @@
+# Logs
+backend/logs/
+
+# Rust
+rustc-ice-*.txt
