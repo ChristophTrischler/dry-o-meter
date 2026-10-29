@@ -34,6 +34,10 @@ export function deleteController(id) {
   return request(`${BASE_URL}/${id}`, { method: 'DELETE' })
 }
 
+export function reclaimControllerUuid(id) {
+  return request(`${BASE_URL}/${id}/reclaim-uuid`, { method: 'POST' })
+}
+
 export function getControllerWithReadings(id, limit = null) {
   const params = limit != null ? `?limit=${limit}` : ''
   return request(`${BASE_URL}/${id}/readings${params}`)

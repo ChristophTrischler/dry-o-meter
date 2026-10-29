@@ -23,7 +23,8 @@ pub fn router() -> Router {
                 .put(update_controller)
                 .delete(delete_controller)
                 .push(Router::with_path("readings").get(get_controller_with_readings))
-                .push(Router::with_path("readings/recent").get(get_controller_recent_readings)),
+                .push(Router::with_path("readings/recent").get(get_controller_recent_readings))
+                .push(Router::with_path("reclaim-uuid").post(reclaim_controller_uuid)),
         )
         .push(Router::with_path("uuid/claim-latest").get(claim_latest_uuid))
         .push(
@@ -54,6 +55,24 @@ async fn claim_latest_uuid() -> AppResult<Json<LatestUuidResponse>> {
         .map_err(|_| AppError::Internal("fail".into()))?
         .take();
     Ok(Json(LatestUuidResponse { uuid }))
+}
+
+#[endpoint]
+async fn reclaim_controller_uuid(id: PathParam<i32>) -> AppResult<Json<LatestUuidResponse>> {
+    let controller = Controller::get_by_id(*id)
+        .await?
+        .ok_or(crate::error::AppError::NotFound(
+            "Controller not found".to_string(),
+        ))?;
+
+    LAST_UUID
+        .lock()
+        .map_err(|_| AppError::Internal("fail".into()))?
+        .replace(controller.uuid);
+
+    Ok(Json(LatestUuidResponse {
+        uuid: Some(controller.uuid),
+    }))
 }
 
 #[endpoint]

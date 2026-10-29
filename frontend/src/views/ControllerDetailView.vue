@@ -22,6 +22,21 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleString()
 }
 
+async function handleReclaimUuid() {
+  if (
+    !confirm(
+      'Make this UUID available to a device again? The next device that claims a UUID will receive it.',
+    )
+  )
+    return
+  try {
+    await store.reclaimUuid(Number(props.id))
+    alert('UUID is ready to be claimed by a device.')
+  } catch (e) {
+    alert('Failed to reclaim UUID: ' + e.message)
+  }
+}
+
 async function handleDelete() {
   if (!confirm('Are you sure you want to delete this controller?')) return
   try {
@@ -42,6 +57,7 @@ async function handleDelete() {
         <p class="location">{{ store.currentController.location }}</p>
       </div>
       <div class="header-actions">
+        <button @click="handleReclaimUuid" class="btn btn-secondary">Reclaim UUID</button>
         <RouterLink :to="`/controller/${id}/edit`" class="btn btn-secondary">Edit</RouterLink>
         <button @click="handleDelete" class="btn btn-danger">Delete</button>
       </div>

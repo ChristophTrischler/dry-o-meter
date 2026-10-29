@@ -77,6 +77,19 @@ export const useControllersStore = defineStore('controllers', () => {
     }
   }
 
+  async function reclaimUuid(id) {
+    loading.value = true
+    error.value = null
+    try {
+      return await api.reclaimControllerUuid(id)
+    } catch (e) {
+      error.value = e.message
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function fetchControllerWithReadings(id, limit = null) {
     loading.value = true
     error.value = null
@@ -114,6 +127,7 @@ export const useControllersStore = defineStore('controllers', () => {
     addController,
     editController,
     removeController,
+    reclaimUuid,
     fetchControllerWithReadings,
     fetchRecentReadings,
   }
