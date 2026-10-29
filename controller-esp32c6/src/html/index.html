@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dry-O-Meter setup</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      max-width: 28rem;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+    }
+
+    label {
+      display: block;
+      margin: 1rem 0;
+    }
+
+    input {
+      box-sizing: border-box;
+      display: block;
+      width: 100%;
+      margin-top: .35rem;
+      padding: .6rem;
+    }
+
+    button {
+      width: 100%;
+      padding: .75rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Dry-O-Meter setup</h1>
+  <p>Enter the Wi-Fi network and backend server this controller should use.</p>
+  <form method="post" action="/config">
+    <label>Wi-Fi name (SSID)
+      <input name="ssid" maxlength="32" autocomplete="off" required>
+    </label>
+    <label>Wi-Fi password
+      <input name="pw" type="password" maxlength="64" autocomplete="off">
+    </label>
+    <label>Server
+      <input name="server" maxlength="96" placeholder="http://192.168.0.10:8080" required>
+    </label>
+    <button type="submit">Save configuration</button>
+  </form>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    for (const name of ['ssid', 'pw', 'server']) {
+      const value = params.get(name);
+
+      if (value !== null) {
+        document.querySelector(`[name="${name}"]`).value = value;
+      }
+    }
+  </script>
+</body>
+
+</html>
