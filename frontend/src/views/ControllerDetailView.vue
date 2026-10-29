@@ -1,7 +1,9 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useControllersStore } from '@/stores/controllers'
 import ReadingsTable from '@/components/ReadingsTable.vue'
+
+const AUTO_REFRESH_MS = 2 * 60 * 1000
 
 const props = defineProps({
   id: { type: String, required: true },
@@ -9,9 +11,17 @@ const props = defineProps({
 
 const store = useControllersStore()
 const hours = ref(24)
+let refreshInterval
 
 onMounted(() => {
   store.fetchRecentReadings(Number(props.id), hours.value)
+  refreshInterval = setInterval(() => {
+    store.fetchRecentReadings(Number(props.id), hours.value, true)
+  }, AUTO_REFRESH_MS)
+})
+
+onUnmounted(() => {
+  clearInterval(refreshInterval)
 })
 
 function loadReadings() {

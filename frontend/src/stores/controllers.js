@@ -102,15 +102,18 @@ export const useControllersStore = defineStore('controllers', () => {
     }
   }
 
-  async function fetchRecentReadings(id, hours = null) {
-    loading.value = true
-    error.value = null
+  async function fetchRecentReadings(id, hours = null, silent = false) {
+    if (!silent) {
+      loading.value = true
+      error.value = null
+    }
     try {
       currentController.value = await api.getRecentReadings(id, hours)
+      if (silent) error.value = null
     } catch (e) {
-      error.value = e.message
+      if (!silent) error.value = e.message
     } finally {
-      loading.value = false
+      if (!silent) loading.value = false
     }
   }
 
