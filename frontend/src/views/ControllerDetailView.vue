@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useControllersStore } from '@/stores/controllers'
+import HumidityGraph from '@/components/HumidityGraph.vue'
 import ReadingsTable from '@/components/ReadingsTable.vue'
 
 const AUTO_REFRESH_MS = 2 * 60 * 1000
@@ -108,6 +109,13 @@ async function handleDelete() {
           </select>
         </div>
       </div>
+
+      <HumidityGraph
+        v-if="!store.loading && !store.error && store.currentController.readings?.length"
+        :readings="store.currentController.readings"
+        :min-humidity="store.currentController.min_humidity"
+        :max-humidity="store.currentController.max_humidity"
+      />
 
       <div v-if="store.loading" class="loading">Loading readings...</div>
       <div v-else-if="store.error" class="error">{{ store.error }}</div>
